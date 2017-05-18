@@ -1251,8 +1251,14 @@ RUBY
         error :missing_ancestor_type, [ancestor, klass, name], e
       end
     }
-    return nil
+    return lookup_method_missing(the_klass, name)
   end
+
+  def self.lookup_method_missing(the_klass, name)
+    the_klass.ancestors[0..-1].lazy.map { |ancestor|
+      ancestor.respond_to?(:method_missing_type) && ancestor.method_missing_type(name)
+    }.find{ |t| t }
+  end  
 end
 
 # Modify Parser::MESSAGES so can use the awesome parser diagnostics printing!

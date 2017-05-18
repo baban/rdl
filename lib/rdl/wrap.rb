@@ -289,6 +289,15 @@ class Object
     nil
   end
 
+  def make_checker(*args)
+     klass, meth, type = begin
+                           RDL::Wrap.process_type_args(self, *args)
+                         rescue Racc::ParseError => err 
+                           raise err 
+                         end
+     [type]
+  end 
+
   # [+ klass +] may be Class, Symbol, or String
   # [+ method +] may be Symbol or String
   # [+ type +] may be Type or String
