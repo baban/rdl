@@ -562,6 +562,22 @@ class TestTypecheck < Minitest::Test
     assert_equal tt("Array<String>"), do_tc('[1, 2, 3].map { |y| y.to_s }', env: @env)
   end
 
+  class MissingType
+    def self.method_missing_type(name)
+      return tt("Fixnum") if :foo == name
+      nil
+    end
+
+    def method_missing(name, *_)
+      p name
+    end
+  end
+
+  def test_send_method_missing
+    # method_missingを呼び出す文法
+    assert_equal tt("Fixnum"), do_tc('MissingType.new.foo()', env: @env)
+  end
+
   def test_send_union
     self.class.class_eval {
       type :_send_union1, "(Fixnum) -> Float"
